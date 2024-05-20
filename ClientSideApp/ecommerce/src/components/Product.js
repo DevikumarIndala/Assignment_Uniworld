@@ -7,9 +7,10 @@ import { CartContext } from "../contexts/CartContext";
 
 const Product = ({ product }) => {
   const { addToCart } = useContext(CartContext);
-
+console.log(product, "seeeeeeeee")
   // destructure product
-  const { id, image, category, title, price } = product;
+  const { id, image, category, name, price } = product;
+  
   return (
     <div>
       <div className="border border-[#e4e4e4] h-[300px] mb-4 relative overflow-hidden group transition">
@@ -38,11 +39,11 @@ const Product = ({ product }) => {
           </Link>
         </div>
       </div>
-      {/* category, title & price */}
+      {/* category, name & price */}
       <div>
         <div className="tex-sm capitalize text-gray-500 mb-1">{category}</div>
         <Link to={`/product/${id}`}>
-          <h2 className="font-semibold mb-1">{title}</h2>
+          <h2 className="font-semibold mb-1">{name}</h2>
         </Link>
 
         <h2 className="font-semibbold">$ {price}</h2>

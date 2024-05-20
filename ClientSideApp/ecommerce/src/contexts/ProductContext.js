@@ -8,9 +8,9 @@ const ProductProvider = ({ children }) => {
   // fetch products
   useEffect(() => {
     const fetchProducts = async () => {
-      const response = await fetch("https://fakestoreapi.com/products");
+      const response = await fetch("http://localhost:5000/api/products");
       const data = await response.json();
-      setProducts(data);
+      setProducts(data.products); // Assuming the response object has a key 'products' containing the array of products
     };
     fetchProducts();
   }, []);

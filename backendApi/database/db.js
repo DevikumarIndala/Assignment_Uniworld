@@ -1,16 +1,14 @@
-// db.js 
-
-// Author: Devikumar
+// Import Sequelize and its DataTypes
 const { Sequelize, DataTypes } = require('sequelize');
 
-// Create Sequelize instance
+// Create a new Sequelize instance with your database configuration
 const sequelize = new Sequelize('ecommerce', 'new_user', 'kumar', {
   host: 'localhost',
   port: 3306,
   dialect: 'mysql'
 });
 
-// Define User model
+// Define the User model
 const User = sequelize.define('User', {
   id: {
     type: DataTypes.INTEGER,
@@ -28,7 +26,7 @@ const User = sequelize.define('User', {
   }
 });
 
-// Define Order model
+// Define the Order model
 const Order = sequelize.define('Order', {
   id: {
     type: DataTypes.INTEGER,
@@ -45,34 +43,7 @@ const Order = sequelize.define('Order', {
   }
 });
 
-// Define OrderChair model
-const OrderChair = sequelize.define('OrderChair', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  }
-});
-
-// Define OrderTable model
-const OrderTable = sequelize.define('OrderTable', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  }
-});
-
-// Define OrderTop model
-const OrderTop = sequelize.define('OrderTop', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  }
-});
-
-// Define Product model
+// Define the Product model
 const Product = sequelize.define('Product', {
   id: {
     type: DataTypes.INTEGER,
@@ -90,36 +61,75 @@ const Product = sequelize.define('Product', {
   category: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  image: {
+    type: DataTypes.STRING, // Assuming the image path or URL is stored as a string
+    allowNull: true // Change to false if image is required
   }
 });
 
-// Define relationships
+// Define relationships between models
 User.hasMany(Order);
 Order.belongsTo(User);
+// Define relationships between models with cascade delete
+Order.belongsToMany(Product, { through: 'OrderProduct', onDelete: 'CASCADE' }); // Many-to-many relationship
+Product.belongsToMany(Order, { through: 'OrderProduct', onDelete: 'CASCADE' }); // Many-to-many relationship
 
-Order.belongsToMany(Product, { through: OrderChair, foreignKey: 'order_id' });
-Order.belongsToMany(Product, { through: OrderTable, foreignKey: 'order_id' });
-Order.belongsToMany(Product, { through: OrderTop, foreignKey: 'order_id' });
-Product.belongsToMany(Order, { through: OrderChair, foreignKey: 'chair_id' });
-Product.belongsToMany(Order, { through: OrderTable, foreignKey: 'table_id' });
-Product.belongsToMany(Order, { through: OrderTop, foreignKey: 'top_id' });
 
-// Sync all defined models with the database
-sequelize.sync({ force: true }) // Note: Use { force: true } to drop existing tables
-  .then(() => {
+// Synchronize all defined models with the database
+sequelize.sync({ force: true }) // Use { force: true } to drop existing tables
+  .then(async () => {
     console.log('All tables have been created successfully.');
+
+    // Insert multiple products
+    await Product.bulkCreate([
+      {
+        name: 'Product 1',
+        price: 10.00,
+        category: 'Category 1',
+        image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      },
+      {
+        name: 'Product 2',
+        price: 20.00,
+        category: 'Category 2',
+        image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      },
+      {
+        name: 'Product 3',
+        price: 30.00,
+        category: 'Category 1',
+        image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      },
+      {
+        name: 'Product 4',
+        price: 40.00,
+        category: 'Category 3',
+        image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      },
+      {
+        name: 'Product 5',
+        price: 50.00,
+        category: 'Category 2',
+        image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
+      }
+    ]);
+
+    console.log('Five products inserted successfully.');
+  })
+  .then(() => {
+    // Listen for the 'connect' event
+    sequelize.authenticate()
+      .then(() => {
+        console.log('Connection to the database has been established successfully.');
+      })
+      .catch(err => {
+        console.error('Unable to connect to the database:', err);
+      });
   })
   .catch(err => {
     console.error('Error creating tables:', err);
   });
 
-// Listen for the 'connect' event
-sequelize.authenticate()
-  .then(() => {
-    console.log('Connection to the database has been established successfully.');
-  })
-  .catch(err => {
-    console.error('Unable to connect to the database:', err);
-  });
-
+// Export the Sequelize instance for use in other parts of your application
 module.exports = sequelize;

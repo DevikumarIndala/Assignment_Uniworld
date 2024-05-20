@@ -10,14 +10,20 @@ exports.getProducts = async (req, res) => {
     }
 };
 
-// Add a new product
+// Controller to add a new product
 exports.addProduct = async (req, res) => {
     try {
-        const { name, price, category } = req.body;
-        const product = await Product.create({ name, price, category });
+        const { name, price, category, image } = req.body;
+        
+        // Validate required fields
+        if (!name || !price || !category) {
+            return res.status(400).json({ success: false, message: 'Name, price, and category are required' });
+        }
+        
+        const product = await Product.create({ name, price, category, image });
         res.status(201).json({ success: true, product });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+        res.status(500).json({ success: false, message: 'Failed to add product' });
     }
 };

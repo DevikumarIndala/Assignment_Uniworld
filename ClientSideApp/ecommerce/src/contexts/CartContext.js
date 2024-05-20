@@ -10,6 +10,24 @@ const CartProvider = ({ children }) => {
   // total price state
   const [total, setTotal] = useState(0);
 
+  // Fetch orders list
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/orders");
+        if (!response.ok) {
+          throw new Error("Failed to fetch orders");
+        }
+        const data = await response.json();
+        // Assuming the response contains an array of orders
+        setCart(data.orders);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOrders();
+  }, []);
   useEffect(() => {
     const total = cart.reduce((accumulator, currentItem) => {
       return accumulator + currentItem.price * currentItem.amount;

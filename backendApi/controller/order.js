@@ -13,3 +13,14 @@ exports.placeOrder = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error' });
 }
 };
+
+exports.getAllOrders = async (req, res) => {
+  try {
+    // Fetch all orders from the database
+    const orders = await Order.findAll();
+    res.status(200).json({ success: true, orders });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
